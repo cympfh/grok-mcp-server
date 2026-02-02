@@ -1,5 +1,11 @@
 # grok-mcp-server
 
+<p align="center">
+<img src="https://img.shields.io/badge/🤖_Call-Grok-5B5BD6?style=flat-square" alt="Call Grok">
+<img src="https://img.shields.io/badge/Twitter-Search-000000?style=flat-square&logo=x&logoColor=white" alt="X Search">
+<img src="https://img.shields.io/badge/🎨_Imagine-Image_Gen-FF6B9D?style=flat-square" alt="Imagine">
+</p>
+
 わたくし、X (Twitter) のリアルタイム情報検索と画像生成・編集を xAI の Grok さんにお願いできる MCP サーバーですわ。
 
 ## これは何？
