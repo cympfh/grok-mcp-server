@@ -1,0 +1,13 @@
+[project]
+name = "grok-mcp-server"
+version = "0.1.0"
+description = "MCP server for real-time X/Twitter search using xAI Grok API"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "mcp>=1.26.0",
+]
+
+[project.scripts]
+grok-mcp-server = "server:main"
