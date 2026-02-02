@@ -4,11 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **MCP (Model Context Protocol) Server** that provides real-time X/Twitter search and image generation/editing capabilities via xAI's Grok API. It implements the following tools that LLM clients (like Claude) can use:
+This is a **MCP (Model Context Protocol) Server** that provides real-time X/Twitter search and image generation/editing/understanding capabilities via xAI's Grok API. It implements the following tools that LLM clients (like Claude) can use:
 - `search_x`: Search for current information on X/Twitter
 - `ask_grok`: Ask Grok general questions (not limited to X search)
 - `generate_image`: Generate images from text prompts using Grok Imagine
 - `edit_image`: Edit existing images using text prompts
+- `image_understanding`: Understand and describe image content using Grok Vision
 
 ## Architecture
 
@@ -28,6 +29,7 @@ This is a **MCP (Model Context Protocol) Server** that provides real-time X/Twit
    - `ask_grok`: Accepts a question and forwards it to Grok for general queries (with web and X search capabilities)
    - `generate_image`: Accepts a text prompt and generates images using Grok Imagine API
    - `edit_image`: Accepts an existing image (file path, URL, or base64) and a prompt to modify the image
+   - `image_understanding`: Accepts an image (file path, URL, or base64) and a question to understand and describe the image
 3. Returns responses as plain text or image data to the MCP client
 
 ## Development Commands
@@ -87,10 +89,11 @@ The `uvx` command will automatically fetch and run the server from GitHub.
   - `ask_grok`: General Q&A (required parameter: `question`)
   - `generate_image`: Image generation (required: `prompt`; optional: `n`, `aspect_ratio`)
   - `edit_image`: Image editing (required: `prompt` and one of `image_path`/`image_url`/`image_base64`; optional: `n`)
-- **Image generation features**:
-  - Supports multiple images per request (1-10)
-  - Customizable aspect ratios (1:1, 3:4, 4:3, 9:16, 16:9)
-  - Output format: URL
-  - Image editing: Modify existing images with text prompts (accepts file path, URL, or base64)
+  - `image_understanding`: Image understanding (required: `question` and one of `image_path`/`image_url`/`image_base64`)
+- **Image processing features**:
+  - Generation: Supports multiple images per request (1-10), customizable aspect ratios (1:1, 3:4, 4:3, 9:16, 16:9)
+  - Editing: Modify existing images with text prompts (accepts file path, URL, or base64)
+  - Understanding: Analyze and describe image content using Grok Vision API with high detail mode
+  - Output format: URL for generated/edited images, text description for understanding
 - **Error handling**: Returns errors as text content rather than raising exceptions (MCP convention)
-- **Timeout**: 60 second timeout on API calls
+- **Timeout**: 60 second timeout on API calls (3600 seconds for image understanding)

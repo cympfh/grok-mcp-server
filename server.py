@@ -127,6 +127,32 @@ async def handle_list_tools() -> list[types.Tool]:
                 "required": ["prompt"],
             },
         ),
+        types.Tool(
+            name="image_understanding",
+            description="画像の内容を理解して説明します。Grok Vision APIを使用。",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "question": {
+                        "type": "string",
+                        "description": "画像に対する質問（例: 'What's in this image?', 'この画像の内容を説明して'）",
+                    },
+                    "image_path": {
+                        "type": "string",
+                        "description": "解析する画像のファイルパス",
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "description": "解析する画像のURL",
+                    },
+                    "image_base64": {
+                        "type": "string",
+                        "description": "解析する画像のbase64エンコードデータ",
+                    },
+                },
+                "required": ["question"],
+            },
+        ),
     ]
 
 
@@ -366,6 +392,79 @@ Include relevant sources that support your answer. If no specific sources are av
                     text=json.dumps(result, ensure_ascii=True, separators=(",", ":")),
                 )
             ]
+
+        except Exception as e:
+            return [types.TextContent(type="text", text=f"Error: {str(e)}")]
+
+    elif name == "image_understanding":
+        if not arguments or "question" not in arguments:
+            return [
+                types.TextContent(
+                    type="text", text="Error: 'question' argument is required."
+                )
+            ]
+
+        if not XAI_API_KEY:
+            return [
+                types.TextContent(type="text", text="Error: XAI_API_KEY is not set.")
+            ]
+
+        # 画像ソースの検証（少なくとも1つ必要）
+        image_path = arguments.get("image_path")
+        image_url = arguments.get("image_url")
+        image_base64 = arguments.get("image_base64")
+
+        if not any([image_path, image_url, image_base64]):
+            return [
+                types.TextContent(
+                    type="text",
+                    text="Error: One of 'image_path', 'image_url', or 'image_base64' is required.",
+                )
+            ]
+
+        question = arguments.get("question", "")
+
+        try:
+            # 画像データの準備
+            image_data = None
+            if image_base64:
+                # 既にbase64の場合、Data URI形式に変換
+                if not image_base64.startswith("data:"):
+                    try:
+                        image_bytes = base64.b64decode(image_base64)
+                        mime_type = detect_mime_type(image_bytes)
+                        image_data = f"data:{mime_type};base64,{image_base64}"
+                    except Exception:
+                        image_data = f"data:image/jpeg;base64,{image_base64}"
+                else:
+                    image_data = image_base64
+            elif image_path:
+                image_bytes = Path(image_path).read_bytes()
+                mime_type = detect_mime_type(image_bytes, image_path)
+                b64_string = base64.b64encode(image_bytes).decode("utf-8")
+                image_data = f"data:{mime_type};base64,{b64_string}"
+            elif image_url:
+                # URLの場合はそのまま使用
+                image_data = image_url
+
+            if not image_data:
+                return [
+                    types.TextContent(
+                        type="text", text="Error: Failed to load image data."
+                    )
+                ]
+
+            # Grok Vision APIを使用して画像を理解
+            client = Client(api_key=XAI_API_KEY, timeout=3600)
+            session = client.chat.create(model="grok-4-1-fast")
+            session.append(
+                chat.user(
+                    question,
+                    chat.image(image_url=image_data, detail="high"),
+                )
+            )
+            response = session.sample()
+            return [types.TextContent(type="text", text=response.content)]
 
         except Exception as e:
             return [types.TextContent(type="text", text=f"Error: {str(e)}")]
