@@ -19,7 +19,7 @@ Grok の検索能力を Claude に追加できるので、リアルタイムの�
 ターミナルで以下のコマンドを実行してください：
 
 ```bash
-claude mcp add --scope user -e XAI_API_KEY=あなたのAPIキー grok -- uvx https://github.com/cympfh/grok-mcp-server
+claude mcp add --scope user -e XAI_API_KEY=あなたのAPIキー grok -- uvx git+https://github.com/cympfh/grok-mcp-server
 ```
 
 たったこれだけですわ！API キーも一緒に設定できるので、設定ファイルを手で編集する必要はありませんの。
@@ -39,6 +39,18 @@ Claude Code でこんな感じにリクエストすると、X の最新情報を
 ```
 
 わたくしが Grok さんに聞いてきて、結果をお伝えしますわ。
+
+### 一般的な質問もできますわ
+
+X 検索に限らず、Grok に自由に質問することもできますの：
+
+```
+「量子コンピュータの最新動向について教えて」
+「この Python コードを最適化する方法は？」
+「機械学習のベストプラクティスは？」
+```
+
+X 以外の一般的な知識や推論タスクにも対応できますわよ。
 
 ## ちょっとした注意事項
 
