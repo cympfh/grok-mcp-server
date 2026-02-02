@@ -4,21 +4,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **MCP (Model Context Protocol) Server** that provides real-time X/Twitter search capabilities via xAI's Grok API. It implements a single tool `search_x` that LLM clients (like Claude) can use to search for current information on X/Twitter.
+This is a **MCP (Model Context Protocol) Server** that provides real-time X/Twitter search and image generation/editing capabilities via xAI's Grok API. It implements the following tools that LLM clients (like Claude) can use:
+- `search_x`: Search for current information on X/Twitter
+- `ask_grok`: Ask Grok general questions (not limited to X search)
+- `generate_image`: Generate images from text prompts using Grok Imagine
+- `edit_image`: Edit existing images using text prompts
 
 ## Architecture
 
 - **Single-file server**: `server.py` contains the entire MCP server implementation
 - **MCP Protocol**: Uses `mcp.server.stdio` for stdio-based communication
-- **xAI Integration**: Makes API calls to `https://api.x.ai/v1/chat/completions` using the `grok-4-1-fast` model
+- **xAI Integration**: Makes API calls to multiple xAI endpoints:
+  - `https://api.x.ai/v1/chat/completions` for chat and search (using `grok-4-1-fast` model)
+  - `https://api.x.ai/v1/images/generations` for image generation (using `grok-imagine-image` model)
+  - `https://api.x.ai/v1/images/edits` for image editing (using `grok-imagine-image` model)
 - **Async-first**: Built with `asyncio` and `httpx` for non-blocking I/O
 
 ### How it Works
 
 1. The server runs as a stdio-based MCP server (not HTTP)
-2. It registers a tool called `search_x` that accepts a query string
-3. When called, it forwards the query to Grok with a system prompt optimized for X/Twitter search
-4. Returns the Grok response as plain text to the MCP client
+2. It registers multiple tools:
+   - `search_x`: Accepts a query string and forwards it to Grok with X/Twitter search capabilities
+   - `ask_grok`: Accepts a question and forwards it to Grok for general queries (with web and X search capabilities)
+   - `generate_image`: Accepts a text prompt and generates images using Grok Imagine API
+   - `edit_image`: Accepts an existing image (file path, URL, or base64) and a prompt to modify the image
+3. Returns responses as plain text or image data to the MCP client
 
 ## Development Commands
 
@@ -72,6 +82,15 @@ The `uvx` command will automatically fetch and run the server from GitHub.
 
 - **Python version**: Requires Python 3.13+
 - **No database or persistence**: Stateless request/response model
-- **Tool interface**: Single tool `search_x` with one required parameter `query`
+- **Tool interface**: Multiple tools with different purposes:
+  - `search_x`: X/Twitter search (required parameter: `query`)
+  - `ask_grok`: General Q&A (required parameter: `question`)
+  - `generate_image`: Image generation (required: `prompt`; optional: `n`, `aspect_ratio`)
+  - `edit_image`: Image editing (required: `prompt` and one of `image_path`/`image_url`/`image_base64`; optional: `n`)
+- **Image generation features**:
+  - Supports multiple images per request (1-10)
+  - Customizable aspect ratios (1:1, 3:4, 4:3, 9:16, 16:9)
+  - Output format: URL
+  - Image editing: Modify existing images with text prompts (accepts file path, URL, or base64)
 - **Error handling**: Returns errors as text content rather than raising exceptions (MCP convention)
-- **Timeout**: 60 second timeout on Grok API calls
+- **Timeout**: 60 second timeout on API calls
