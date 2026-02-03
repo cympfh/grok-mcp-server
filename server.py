@@ -190,7 +190,8 @@ You MUST respond in the following JSON format:
         {
             "url": "https://x.com/username/status/...",
             "username": "username",
-            "content": "The post content"
+            "content": "The post content",
+            "images": ["https://image_url1", "https://image_url2"]
         }
     ],
     "summary": "A summary answering the user's question based on the search results"
