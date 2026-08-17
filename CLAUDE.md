@@ -16,8 +16,8 @@ This is a **MCP (Model Context Protocol) Server** that provides real-time X/Twit
 - **Single-file server**: `server.py` contains the entire MCP server implementation
 - **MCP Protocol**: Uses `mcp.server.MCPServer` (mcp >= 2.0) with stdio transport
 - **xAI Integration**: Uses the official `xai-sdk` client:
-  - Chat + search tools (`tools.x_search()`, `tools.web_search()`) via `grok-4-1-fast`
-  - Image generation/editing via `client.image.sample` / `sample_batch` (`grok-imagine-image`)
+  - Chat + search tools (`tools.x_search()`, `tools.web_search()`) via `grok-4.6`
+  - Image generation/editing via `client.image.sample` / `sample_batch` (`grok-imagine-image-2.0`)
   - Image understanding via chat multimodal messages
 - **Async tools**: Tool handlers are async; image URL fetch uses `httpx`
 

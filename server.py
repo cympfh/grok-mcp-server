@@ -11,6 +11,10 @@ from xai_sdk import Client, chat, tools
 
 XAI_API_KEY = os.environ.get("XAI_API_KEY")
 
+# API で利用可能な最新モデル（list_language_models / list_image_generation_models 基準）
+CHAT_MODEL = "grok-4.6"
+IMAGE_MODEL = "grok-imagine-image-2.0"
+
 server = MCPServer("grok-search-server")
 
 AspectRatio = Literal["1:1", "3:4", "4:3", "9:16", "16:9"]
@@ -98,7 +102,7 @@ async def search_x(query: str) -> str:
 
     client = Client(api_key=XAI_API_KEY)
     session = client.chat.create(
-        model="grok-4-1-fast",
+        model=CHAT_MODEL,
         tools=[tools.x_search()],
     )
     session.append(
@@ -135,7 +139,7 @@ async def ask_grok(question: str) -> str:
 
     client = Client(api_key=XAI_API_KEY)
     session = client.chat.create(
-        model="grok-4-1-fast",
+        model=CHAT_MODEL,
         tools=[tools.web_search(), tools.x_search()],
     )
     session.append(
@@ -179,7 +183,7 @@ async def generate_image(
         client = Client(api_key=XAI_API_KEY)
         if n == 1:
             response = client.image.sample(
-                model="grok-imagine-image",
+                model=IMAGE_MODEL,
                 prompt=prompt,
                 aspect_ratio=aspect_ratio,
                 image_format="url",
@@ -187,7 +191,7 @@ async def generate_image(
             result = {"status": "ok", "image": {"url": response.url}}
         else:
             responses = client.image.sample_batch(
-                model="grok-imagine-image",
+                model=IMAGE_MODEL,
                 prompt=prompt,
                 aspect_ratio=aspect_ratio,
                 image_format="url",
@@ -230,7 +234,7 @@ async def edit_image(
         client = Client(api_key=XAI_API_KEY)
         if n == 1:
             response = client.image.sample(
-                model="grok-imagine-image",
+                model=IMAGE_MODEL,
                 image_url=image_data,
                 prompt=prompt,
                 image_format="url",
@@ -238,7 +242,7 @@ async def edit_image(
             result = {"status": "ok", "image": {"url": response.url}}
         else:
             responses = client.image.sample_batch(
-                model="grok-imagine-image",
+                model=IMAGE_MODEL,
                 image_url=image_data,
                 prompt=prompt,
                 image_format="url",
@@ -280,7 +284,7 @@ async def image_understanding(
             return "Error: Failed to load image data."
 
         client = Client(api_key=XAI_API_KEY, timeout=3600)
-        session = client.chat.create(model="grok-4-1-fast")
+        session = client.chat.create(model=CHAT_MODEL)
         session.append(
             chat.user(
                 question,

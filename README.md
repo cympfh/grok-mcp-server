@@ -129,8 +129,8 @@ uv run python server.py
 - **Protocol**: MCP (Model Context Protocol)
 - **Communication**: stdio（HTTP じゃないですわよ）
 - **API**: xAI Grok API
-  - チャット: `grok-4-1-fast` モデル
-  - 画像生成/編集: `grok-imagine-image` モデル
+  - チャット: `grok-4.6` モデル
+  - 画像生成/編集: `grok-imagine-image-2.0` モデル
 - **Python**: 3.13 以上
 - **依存**: httpx, mcp, xai-sdk
 
