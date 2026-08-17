@@ -14,23 +14,23 @@ This is a **MCP (Model Context Protocol) Server** that provides real-time X/Twit
 ## Architecture
 
 - **Single-file server**: `server.py` contains the entire MCP server implementation
-- **MCP Protocol**: Uses `mcp.server.stdio` for stdio-based communication
-- **xAI Integration**: Makes API calls to multiple xAI endpoints:
-  - `https://api.x.ai/v1/chat/completions` for chat and search (using `grok-4-1-fast` model)
-  - `https://api.x.ai/v1/images/generations` for image generation (using `grok-imagine-image` model)
-  - `https://api.x.ai/v1/images/edits` for image editing (using `grok-imagine-image` model)
-- **Async-first**: Built with `asyncio` and `httpx` for non-blocking I/O
+- **MCP Protocol**: Uses `mcp.server.MCPServer` (mcp >= 2.0) with stdio transport
+- **xAI Integration**: Uses the official `xai-sdk` client:
+  - Chat + search tools (`tools.x_search()`, `tools.web_search()`) via `grok-4-1-fast`
+  - Image generation/editing via `client.image.sample` / `sample_batch` (`grok-imagine-image`)
+  - Image understanding via chat multimodal messages
+- **Async tools**: Tool handlers are async; image URL fetch uses `httpx`
 
 ### How it Works
 
-1. The server runs as a stdio-based MCP server (not HTTP)
-2. It registers multiple tools:
+1. The server runs as a stdio-based MCP server (not HTTP): `server.run(transport="stdio")`
+2. Tools are registered with `@server.tool()`:
    - `search_x`: Accepts a query string and forwards it to Grok with X/Twitter search capabilities
    - `ask_grok`: Accepts a question and forwards it to Grok for general queries (with web and X search capabilities)
    - `generate_image`: Accepts a text prompt and generates images using Grok Imagine API
    - `edit_image`: Accepts an existing image (file path, URL, or base64) and a prompt to modify the image
    - `image_understanding`: Accepts an image (file path, URL, or base64) and a question to understand and describe the image
-3. Returns responses as plain text or image data to the MCP client
+3. Returns responses as plain text (JSON string for image generation/edit) to the MCP client
 
 ## Development Commands
 
@@ -83,6 +83,7 @@ The `uvx` command will automatically fetch and run the server from GitHub.
 ## Key Technical Details
 
 - **Python version**: Requires Python 3.13+
+- **Dependencies**: `mcp>=2.0.0`, `xai-sdk>=1.17.0`, `httpx>=0.28.1`
 - **No database or persistence**: Stateless request/response model
 - **Tool interface**: Multiple tools with different purposes:
   - `search_x`: X/Twitter search (required parameter: `query`)
@@ -95,5 +96,5 @@ The `uvx` command will automatically fetch and run the server from GitHub.
   - Editing: Modify existing images with text prompts (accepts file path, URL, or base64)
   - Understanding: Analyze and describe image content using Grok Vision API with high detail mode
   - Output format: URL for generated/edited images, text description for understanding
-- **Error handling**: Returns errors as text content rather than raising exceptions (MCP convention)
-- **Timeout**: 60 second timeout on API calls (3600 seconds for image understanding)
+- **Error handling**: Returns errors as plain text strings rather than raising exceptions (MCP convention)
+- **Timeout**: 60 second timeout on image URL fetch (3600 seconds for image understanding client)
