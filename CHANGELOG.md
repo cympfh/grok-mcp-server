@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-17
+
+### Changed
+- チャット／検索／画像理解モデルを `grok-4-1-fast` から `grok-4.6` に更新
+- 画像生成・編集モデルを `grok-imagine-image` から `grok-imagine-image-2.0` に更新
+- モデル名を `CHAT_MODEL` / `IMAGE_MODEL` 定数に集約
+
 ## [1.0.0] - 2026-08-17
 
 ### Changed
